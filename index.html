@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قیمت چین‌لینک</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1a2e">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .logo {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #375BD2, #2A52BE);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: bold;
+            box-shadow: 0 0 30px rgba(55, 91, 210, 0.5);
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .price-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .price {
+            font-size: 56px;
+            font-weight: bold;
+            color: #4ade80;
+            direction: ltr;
+        }
+
+        .price-label {
+            font-size: 14px;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+
+        .change {
+            font-size: 18px;
+            margin-top: 10px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .change.up {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .change.down {
+            background: rgba(248, 113, 113, 0.2);
+            color: #f87171;
+        }
+
+        .update-time {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: #1a1a2e;
+        }
+
+        .btn-stop {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        .status .dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
+
+        .dot.active {
+            background: #4ade80;
+            animation: pulse 1.5s infinite;
+        }
+
+        .dot.inactive {
+            background: #f87171;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .countdown {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 10px;
+        }
+
+        .settings {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .settings label {
+            font-size: 13px;
+            color: #94a3b8;
+        }
+
+        .settings select {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">⬡</div>
+        <h1>قیمت لحظه‌ای Chainlink</h1>
+
+        <div class="price-box">
+            <div class="price" id="price">--</div>
+            <div class="price-label">دلار آمریکا (USD)</div>
+            <div class="change" id="change">--</div>
+            <div class="update-time" id="updateTime">در حال دریافت...</div>
+        </div>
+
+        <div>
+            <button class="btn btn-start" id="startBtn" onclick="startAnnounce()">🔊 شروع اعلام صوتی</button>
+            <button class="btn btn-stop" id="stopBtn" onclick="stopAnnounce()" disabled>⏹ توقف</button>
+        </div>
+
+        <div class="status" id="status">
+            <span class="dot inactive"></span>
+            اعلام صوتی غیرفعال
+        </div>
+        <div class="countdown" id="countdown"></div>
+
+        <div class="settings">
+            <label>بازه اعلام صوتی:</label><br>
+            <select id="interval" onchange="updateInterval()">
+                <option value="60">هر ۱ دقیقه</option>
+                <option value="180">هر ۳ دقیقه</option>
+                <option value="300" selected>هر ۵ دقیقه</option>
+                <option value="600">هر ۱۰ دقیقه</option>
+                <option value="900">هر ۱۵ دقیقه</option>
+            </select>
+        </div>
+    </div>
+
+    <script>
+        let announceTimer = null;
+        let countdownTimer = null;
+        let currentPrice = null;
+        let previousPrice = null;
+        let secondsLeft = 0;
+        let intervalSeconds = 300;
+
+        // دریافت قیمت از CoinGecko
+        async function fetchPrice() {
+            try {
+                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=chainlink&vs_currencies=usd&include_24hr_change=true');
+                const data = await res.json();
+
+                previousPrice = currentPrice;
+                currentPrice = data.chainlink.usd;
+                const change24h = data.chainlink.usd_24h_change;
+
+                document.getElementById('price').textContent = '$' + currentPrice.toFixed(2);
+
+                const changeEl = document.getElementById('change');
+                const sign = change24h >= 0 ? '+' : '';
+                changeEl.textContent = `${sign}${change24h.toFixed(2)}% (۲۴ ساعته)`;
+                changeEl.className = 'change ' + (change24h >= 0 ? 'up' : 'down');
+
+                // رنگ قیمت بر اساس تغییر
+                const priceEl = document.getElementById('price');
+                if (previousPrice !== null) {
+                    priceEl.style.color = currentPrice >= previousPrice ? '#4ade80' : '#f87171';
+                }
+
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('fa-IR');
+                document.getElementById('updateTime').textContent = `آخرین بروزرسانی: ${timeStr}`;
+
+                return currentPrice;
+            } catch (e) {
+                console.error('خطا در دریافت قیمت:', e);
+                document.getElementById('updateTime').textContent = '❌ خطا در دریافت قیمت';
+                return null;
+            }
+        }
+
+        // اعلام صوتی قیمت
+        function speakPrice(price) {
+            if (!price) return;
+            const msg = new SpeechSynthesisUtterance(
+                `Chainlink price is ${price.toFixed(2)} dollars`
+            );
+            msg.lang = 'en-US';
+            msg.rate = 0.9;
+            speechSynthesis.speak(msg);
+        }
+
+        // شروع اعلام
+        async function startAnnounce() {
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('status').innerHTML = '<span class="dot active"></span> اعلام صوتی فعال';
+
+            const price = await fetchPrice();
+            speakPrice(price);
+
+            secondsLeft = intervalSeconds;
+            startCountdown();
+
+            announceTimer = setInterval(async () => {
+                const p = await fetchPrice();
+                speakPrice(p);
+                secondsLeft = intervalSeconds;
+            }, intervalSeconds * 1000);
+        }
+
+        // توقف اعلام
+        function stopAnnounce() {
+            clearInterval(announceTimer);
+            clearInterval(countdownTimer);
+            announceTimer = null;
+            speechSynthesis.cancel();
+
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('status').innerHTML = '<span class="dot inactive"></span> اعلام صوتی غیرفعال';
+            document.getElementById('countdown').textContent = '';
+        }
+
+        // شمارش معکوس
+        function startCountdown() {
+            clearInterval(countdownTimer);
+            countdownTimer = setInterval(() => {
+                secondsLeft--;
+                if (secondsLeft < 0) secondsLeft = intervalSeconds;
+                const min = Math.floor(secondsLeft / 60);
+                const sec = secondsLeft % 60;
+                document.getElementById('countdown').textContent =
+                    `اعلام بعدی: ${min}:${sec.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // تغییر بازه
+        function updateInterval() {
+            intervalSeconds = parseInt(document.getElementById('interval').value);
+            if (announceTimer) {
+                stopAnnounce();
+                startAnnounce();
+            }
+        }
+
+        // بروزرسانی قیمت هر ۳۰ ثانیه (بدون صدا)
+        setInterval(fetchPrice, 30000);
+
+        // دریافت اولیه
+        fetchPrice();
+    </script>
+</body>
+</html>
